@@ -25,7 +25,7 @@ type (
 
 	route struct {
 		url        string
-		method     []string
+		methods    []string
 		controller func(http.ResponseWriter, *http.Request)
 	}
 
@@ -61,7 +61,7 @@ func (srv *server) registerRoutes() {
 
 	for version, routes := range srv.versions {
 		for _, r := range routes {
-			srv.router.HandleFunc(version+r.url, r.controller).Methods(r.method...)
+			srv.router.HandleFunc(version+r.url, r.controller).Methods(r.methods...)
 		}
 	}
 
@@ -128,17 +128,17 @@ func V0RoutesAndCtrls() []route {
 	return []route{
 		{
 			url:        "/register",
-			method:     []string{"POST"},
+			methods:    []string{"POST"},
 			controller: V0_RegisterUser,
 		},
 		{
 			url:        "/login",
-			method:     []string{"POST"},
+			methods:    []string{"POST"},
 			controller: V0_LoginUser,
 		},
 		{
 			url:        "/{user}/friends",
-			method:     []string{"GET"},
+			methods:    []string{"GET"},
 			controller: V0_GetFriends,
 		},
 	}
@@ -214,9 +214,7 @@ func main() {
 	srv := NewServer()
 	srv.newVersion("/api/v0", V0RoutesAndCtrls())
 	srv.startServer(os.Getenv("PORT"))
-
-	// last thing the server should call
-	srv.shutdown()
+	defer srv.shutdown()
 }
 
 // -------------------------------------------------------------------
