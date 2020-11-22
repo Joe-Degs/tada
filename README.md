@@ -11,14 +11,15 @@ type server struct {
 	httpSrv  *http.Server
 	logger   *log.Logger
 	
-	// most api's have versioning in the form of /api/v1/something. I wanted to
+	// most api's have versioning in the form of /api/v1/something. I call the '/api/v1' the 
+	// versionPrefix because it will be prefixed on the url of a route type. I wanted to
 	// have that in the server and the best way I could achieve that was using a map to
-	// keep track of a versionPrefix(string) and the slice of routes that version
-	// is released with. So i can initialize the routes by adding the versionPrefix to every
+	// keep track of a versionPrefix and the slice of routes that version
+	// is released with. So I can initialize the routes by adding the versionPrefix to every
 	// every url in the route associated with it.
 	versions map[string][]route
 
-	c        chan os.Signal // used to recieve interrupt signals to shutdown server.
+	c        chan os.Signal // used to recieve interrupt signals to gracefully shutdown server.
 }
 ```
 and the
