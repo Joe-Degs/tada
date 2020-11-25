@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -29,6 +32,13 @@ type (
 		controller func(http.ResponseWriter, *http.Request)
 	}
 
+	// dbRes is just a container the basic resources needed to do
+	// basic database work.
+	dbRes struct {
+		ctx context.Context
+		db  *sql.DB
+	}
+
 	Key int
 )
 
@@ -36,6 +46,7 @@ var (
 	// this indicates up or down status of server
 	// > 1 means server up and 0 means down.
 	SERVER_HEALTH int32
+	globalRes     *dbRes //
 
 	nextRequestID = func() string {
 		return fmt.Sprintf("%d", time.Now().UnixNano())
@@ -146,15 +157,24 @@ func V0RoutesAndCtrls() []route {
 
 // Controller Functions
 func V0_RegisterUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("User Registered"))
+	Json(w, http.StatusNotImplemented, struct {
+		Message string `json:"msg"`
+	}{
+		Message: "Not yet implemented",
+	})
 }
 
 func V0_LoginUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("User Logged In"))
+	Error(w, http.StatusNotImplemented, errors.New("not logged in\n"))
 }
 
 func V0_GetFriends(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Here you go, mate!"))
+	Json(w, http.StatusNotImplemented, struct {
+		Message string `json:"msg"`
+	}{
+		Message: fmt.Sprintf("You will have to waita lil bit %s!",
+			mux.Vars(r)["user"]),
+	})
 }
 
 func checkServerStatus(w http.ResponseWriter, r *http.Request) {
@@ -163,6 +183,23 @@ func checkServerStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusServiceUnavailable)
+}
+
+//response functions. This functions serialize data to json and send to
+// an output stream.
+func Json(w http.ResponseWriter, statusCode int, data interface{}) {
+	w.WriteHeader(statusCode)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		fmt.Fprintf(w, "%s", err.Error())
+	}
+}
+
+func Error(w http.ResponseWriter, statusCode int, err error) {
+	Json(w, statusCode, struct {
+		Error string `json:"error"`
+	}{
+		Error: err.Error(),
+	})
 }
 
 // ------------ Middlewares -----------------------
@@ -211,10 +248,20 @@ func init() {
 }
 
 func main() {
+	// init new server and start serving.
 	srv := NewServer()
-	srv.newVersion("/api/v0", V0RoutesAndCtrls())
+	srv.newVersion("/api/v0", V0RoutesAndCtrls()) //register version of routes to serve
 	srv.startServer(os.Getenv("PORT"))
-	defer srv.shutdown()
+	defer srv.shutdown() // wait to recieve interrupt signals and shutdown server.
 }
 
 // -------------------------------------------------------------------
+// connect opens connection to the database
+func connect() (*sql.DB, error) {
+	return nil, nil
+}
+
+// initialize a global dbRes
+func Init() {
+	globalRes = &dbRes{}
+}
