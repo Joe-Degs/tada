@@ -1,4 +1,4 @@
-module github.com/todo-app
+module github.com/Joe-Degs/todo-app
 
 go 1.13
 
