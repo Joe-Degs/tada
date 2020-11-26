@@ -112,6 +112,8 @@ func (srv *server) startServer(port string) {
 			srv.logger.Println(err)
 		}
 	}()
+
+	atomic.StoreInt32(&SERVER_HEALTH, 1)
 }
 
 func (srv *server) shutdown() {
@@ -257,11 +259,14 @@ func main() {
 
 // -------------------------------------------------------------------
 // connect opens connection to the database
-func connect() (*sql.DB, error) {
-	return nil, nil
+func connect() *sql.DB {
+	return nil
 }
 
 // initialize a global dbRes
 func Init() {
-	globalRes = &dbRes{}
+	globalRes = &dbRes{
+		db:  connect(),
+		ctx: context.Background(),
+	}
 }

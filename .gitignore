@@ -1,4 +1,3 @@
 todo-app
 .env
-ideas.txt
-test_sqlite/
+*.db

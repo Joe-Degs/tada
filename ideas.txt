@@ -1,0 +1,27 @@
+> trying out the sqlboiler. Watched couple of youtube videos and it looks like what i've been looking for all along. It'll really motivate me to learn sql and not orms. This one generates go code from your database so its cool.
+
+> also i'm already having all this weird ideas about the structure of my database layer and how i'll structure the whole thing. Pretty crazy right. I dont even know how to use the {orm}? yet.
+Stuff like should the database layer be an interface type or a struct type.
+
+
+> like should the layer be abstracted with this
+	type db_layer interface {
+		ctx context.Context
+		db *sql.DB
+		logger *logger.Logger // some logger interface.
+	}
+or this
+	type db_layer struct {
+		ctx context.Context
+		db *sql.DB
+		logger *logger.Logger // some logger interface.
+	}
+I guess the struct type makes most sense. I dont even think interfaces can have anything apart from methods so its definitely going to be a struct.
+
+> context.Context interface is coming up frequently now and i think i got to take it seriously now. So imma dedicate this evening to contexts and the sqlboiler orm.
+
+The context Package
+----------------------
+> contexts are used for what exactly? -> according to the stdlib, it is a type that carries deadline, cancellation signals and some data accross multiple goroutines and processes. The catch here is that it is used for killing process or stopping goroutines accross multiple processes that are derived a particular parent context.
+
+> Okay parent context? how the fuck is contexts having parents and childs and you can't find a girlfriend. -> No need to be like this my gee. :(. contexts can be derived from other contexts, so a derived context is a child to the context it has been derived from. The base context is obviously the parent.
